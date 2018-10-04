@@ -22,7 +22,7 @@ namespace PicasaDatabaseReader
 
         public MainWindowPM()
         {
-            PathToDatabase = @"E:\Документы\Picasa database";
+            PathToDatabase = @"C:\Users\Spade\AppData\Local";
         }
 
         public bool IsBusy
