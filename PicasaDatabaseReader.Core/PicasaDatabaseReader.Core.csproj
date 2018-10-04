@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.IO.Abstractions" Version="2.1.0.231" />
+    <PackageReference Include="System.Reactive" Version="4.1.1" />
+  </ItemGroup>
+
+</Project>
