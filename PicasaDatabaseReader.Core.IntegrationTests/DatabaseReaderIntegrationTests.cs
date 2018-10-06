@@ -1,6 +1,7 @@
 using System;
 using System.IO.Abstractions;
 using System.Linq;
+using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -8,15 +9,17 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PicasaDatabaseReader.Core.Fields;
 using PicasaDatabaseReader.Core.Tests;
+using PicasaDatabaseReader.Core.Tests.Extensions;
+using PicasaDatabaseReader.Core.Tests.Util;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace PicasaDatabaseReader.Core.IntegrationTests
 {
-    public class DatabaseReaderTests : TestsBase<DatabaseReaderTests>
+    public class DatabaseReaderIntegrationTests : TestsBase<DatabaseReaderIntegrationTests>
     {
 
-        public DatabaseReaderTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
+        public DatabaseReaderIntegrationTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
         }
 
@@ -28,7 +31,8 @@ namespace PicasaDatabaseReader.Core.IntegrationTests
             Logger.LogInformation("ShouldGetTableNames");
 
             var fileSystem = new FileSystem();
-            var databaseReader = new DatabaseReader(fileSystem, PathToDatabase, GetLogger<DatabaseReader>());
+
+            var databaseReader = this.GetDatabaseReader(fileSystem, PathToDatabase);
 
             var tableNames = await databaseReader
                 .GetTableNames()
@@ -47,7 +51,7 @@ namespace PicasaDatabaseReader.Core.IntegrationTests
             Logger.LogInformation("ShouldGetFieldFiles TableName:{TableName} FieldCount:{FieldCount}", tableName, fieldCount);
 
             var fileSystem = new FileSystem();
-            var databaseReader = new DatabaseReader(fileSystem, PathToDatabase, GetLogger<DatabaseReader>());
+            var databaseReader = this.GetDatabaseReader(fileSystem, PathToDatabase);
 
             var fields = await databaseReader
                 .GetFieldFilePaths(tableName)
@@ -92,7 +96,7 @@ namespace PicasaDatabaseReader.Core.IntegrationTests
         private IObservable<IField> GetCoreFields(string tableName)
         {
             var fileSystem = new FileSystem();
-            var databaseReader = new DatabaseReader(fileSystem, PathToDatabase, GetLogger<DatabaseReader>());
+            var databaseReader = this.GetDatabaseReader(fileSystem, PathToDatabase);
 
             return databaseReader
                 .GetFields(tableName);
@@ -101,7 +105,7 @@ namespace PicasaDatabaseReader.Core.IntegrationTests
         private IObservable<PicasaDatabaseReader.Fields.IField> LegacyGetFields(string tableName)
         {
             var fileSystem = new FileSystem();
-            var databaseReader = new DatabaseReader(fileSystem, PathToDatabase, GetLogger<DatabaseReader>());
+            var databaseReader = this.GetDatabaseReader(fileSystem, PathToDatabase);
 
             return databaseReader
                 .GetFieldFilePaths(tableName)

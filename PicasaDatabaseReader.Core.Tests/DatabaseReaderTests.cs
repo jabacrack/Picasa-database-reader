@@ -1,35 +1,45 @@
 using System;
 using System.IO;
+using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
+using PicasaDatabaseReader.Core.Scheduling;
+using PicasaDatabaseReader.Core.Tests.Extensions;
+using PicasaDatabaseReader.Core.Tests.Util;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace PicasaDatabaseReader.Core.Tests
 {
-    public class DatabaseReaderTests: UnitTestsBase<DatabaseReaderTests>
+    public class DatabaseReaderTests : UnitTestsBase<DatabaseReaderTests>
     {
+        protected internal readonly TestScheduleProvider TestScheduleProvider = new TestScheduleProvider();
+
         public DatabaseReaderTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
         }
 
         [Fact]
-        public async Task ShouldGetTableNames()
+        public void ShouldGetTableNames()
         {
             Logger.LogInformation("ShouldGetTableNames");
 
             var directoryPath = Path.Combine("c:\\", string.Join("\\", Faker.Lorem.Words()));
 
             var args = Faker.Lorem.Words()
+                .Distinct()
                 .Select(name =>
                 {
                     var filename = $"{name}_0";
                     var path = Path.Combine(directoryPath, filename);
-                    return new {name, filename, path};
+                    return new { name, filename, path };
                 })
                 .ToArray();
 
@@ -38,13 +48,18 @@ namespace PicasaDatabaseReader.Core.Tests
 
             var mockFileSystem = new MockFileSystem(mockFiles);
 
-            var databaseReader = new DatabaseReader(mockFileSystem, directoryPath, GetLogger<DatabaseReader>());
-            var tableNames = await databaseReader
-                .GetTableNames()
-                .ToArray()
-                .FirstAsync();
+            var databaseReader = this.GetDatabaseReader(mockFileSystem, directoryPath, TestScheduleProvider);
 
-            tableNames.Should().BeEquivalentTo(args.Select(arg => arg.name));
+            var tableNames = databaseReader
+                .GetTableNames();
+
+            var autoResetEvent = new AutoResetEvent(false);
+
+            tableNames.Subscribe(_ => { }, () => autoResetEvent.Set());
+
+            TestScheduleProvider.ThreadPool.AdvanceBy(1);
+
+            autoResetEvent.WaitOne();
         }
 
         [Fact]
@@ -55,11 +70,12 @@ namespace PicasaDatabaseReader.Core.Tests
             var directoryPath = Path.Combine("c:\\", string.Join("\\", Faker.Lorem.Words()));
 
             var args = Faker.Lorem.Words()
+                .Distinct()
                 .Select(name =>
                 {
                     var filename = $"TestTable_{name}.pmp";
                     var path = Path.Combine(directoryPath, filename);
-                    return new {name, filename, path};
+                    return new { name, filename, path };
                 })
                 .ToArray();
 
@@ -68,7 +84,8 @@ namespace PicasaDatabaseReader.Core.Tests
 
             var mockFileSystem = new MockFileSystem(mockFiles);
 
-            var databaseReader = new DatabaseReader(mockFileSystem, directoryPath, GetLogger<DatabaseReader>());
+            var databaseReader = this.GetDatabaseReader(mockFileSystem, directoryPath, TestScheduleProvider);
+
             var tableNames = await databaseReader
                 .GetFieldFilePaths("TestTable")
                 .ToArray()

@@ -1,6 +1,7 @@
 using System.Linq;
 using FluentAssertions;
 using PicasaDatabaseReader.Core.Tests;
+using PicasaDatabaseReader.Core.Tests.Util;
 using Xunit;
 using Xunit.Abstractions;
 

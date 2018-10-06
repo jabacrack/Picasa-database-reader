@@ -1,13 +1,8 @@
 using System;
-using Bogus;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Serilog;
 using Serilog.Core;
 using Serilog.Events;
-using Xunit.Abstractions;
 
-namespace PicasaDatabaseReader.Core.Tests
+namespace PicasaDatabaseReader.Core.Tests.Logging
 {
     public class CustomEnrichers : ILogEventEnricher
     {
@@ -49,43 +44,6 @@ namespace PicasaDatabaseReader.Core.Tests
 
             var eventProperty = new LogEventProperty("NewLineIfException", new ScalarValue(result));
             logEvent.AddPropertyIfAbsent(eventProperty);
-        }
-    }
-
-    public abstract class TestsBase<T>
-    {
-        protected readonly IServiceProvider ServiceProvider;
-        protected readonly ILogger<T> Logger;
-
-        public TestsBase(ITestOutputHelper testOutputHelper)
-        {
-            Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Verbose()
-                .Enrich.WithThreadId()
-                .Enrich.With<CustomEnrichers>()
-                .WriteTo.TestOutput(testOutputHelper, outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level:u4}] ({PaddedThreadId}) {ShortSourceContext} {Message}{NewLineIfException}{Exception}")
-                .CreateLogger();
-
-            var services = new ServiceCollection()
-                .AddLogging(builder => builder.AddSerilog());
-
-            ServiceProvider = services.BuildServiceProvider();
-            Logger = ServiceProvider.GetRequiredService<ILogger<T>>();
-        }
-
-        protected ILogger<T> GetLogger<T>()
-        {
-            return ServiceProvider.GetRequiredService<ILogger<T>>();
-        }
-    }
-
-    public abstract class UnitTestsBase<T> : TestsBase<T>
-    {
-        protected readonly Faker Faker;
-
-        protected UnitTestsBase(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
-        {
-            Faker = new Faker();
         }
     }
 }

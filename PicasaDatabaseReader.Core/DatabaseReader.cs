@@ -4,7 +4,9 @@ using System.IO.Abstractions;
 using System.Linq;
 using System.Reactive.Linq;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using PicasaDatabaseReader.Core.Fields;
+using PicasaDatabaseReader.Core.Scheduling;
 
 namespace PicasaDatabaseReader.Core
 {
@@ -15,26 +17,33 @@ namespace PicasaDatabaseReader.Core
         private readonly IFileSystem _fileSystem;
         private readonly string _pathToDatabase;
         private readonly ILogger<DatabaseReader> _logger;
+        private readonly ISchedulerProvider _scheduler;
 
-        public DatabaseReader(IFileSystem fileSystem, string pathToDatabase, ILogger<DatabaseReader> logger = null)
+        public DatabaseReader(IFileSystem fileSystem, string pathToDatabase, ILogger<DatabaseReader> logger = null, ISchedulerProvider scheduler = null)
         {
             _fileSystem = fileSystem;
             _pathToDatabase = pathToDatabase;
-            _logger = logger;
+            _logger = logger ?? NullLogger<DatabaseReader>.Instance;
+            _scheduler = scheduler ?? new SchedulerProvider();
 
-            logger?.LogInformation("Constructed");
+            _logger.LogDebug("Constructed pathToDatabase:{pathToDatabase}");
         }
 
         public IObservable<string> GetTableNames()
         {
-            EnsureDatabaseExists();
+            return Observable.Defer(() =>
+            {
+                _logger.LogTrace("GetTableNames");
 
-            return _fileSystem.Directory.GetFiles(_pathToDatabase, "*_0")
-                .Where(IsTableFile)
-                .Select(_fileSystem.Path.GetFileNameWithoutExtension)
-                .Select(str => str.Substring(0, str.IndexOf("_0", StringComparison.InvariantCulture)))
-                .ToArray()
-                .ToObservable();
+                EnsureDatabaseExists();
+
+                return _fileSystem.Directory.GetFiles(_pathToDatabase, "*_0")
+                    .Where(IsTableFile)
+                    .Select(_fileSystem.Path.GetFileNameWithoutExtension)
+                    .Select(str => str.Substring(0, str.IndexOf("_0", StringComparison.InvariantCulture)))
+                    .ToArray()
+                    .ToObservable();
+            }).SubscribeOn(_scheduler.ThreadPool);
         }
 
         private void EnsureDatabaseExists()
