@@ -1,12 +1,18 @@
 using System.Linq;
 using FluentAssertions;
+using PicasaDatabaseReader.Core.Tests;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace PicasaDatabaseReader.Core.IntegrationTests
 {
-    public class DbUtilsTests
+    public class DbUtilsTests: TestsBase<DbUtilsTests>
     {
-        protected internal const string PathToDatabase = "C:\\Users\\Spade\\AppData\\Local\\Google\\Picasa2\\db3";
+        public const string PathToDatabase = "C:\\Users\\Spade\\AppData\\Local\\Google\\Picasa2\\db3";
+
+        public DbUtilsTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
+        {
+        }
 
         [Fact]
         public void ShouldGetTableNames()
@@ -23,6 +29,37 @@ namespace PicasaDatabaseReader.Core.IntegrationTests
         {
             var fieldsFiles = DbUtils.GetFieldsFiles(PathToDatabase, tableName).ToArray();
             fieldsFiles.Should().HaveCount(fieldCount);
+        }
+    }
+
+    public class FieldFactoryTests : TestsBase<DbUtilsTests>
+    {
+        public FieldFactoryTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
+        {
+        }
+
+        [Fact]
+        public void AlbumDataTableFields()
+        {
+            var fields = DbUtils.GetFieldsFiles(DbUtilsTests.PathToDatabase, "albumdata")
+                .Select(FieldFactory.CreateField)
+                .ToArray();
+        }
+
+        [Fact]
+        public void CatDataTableFields()
+        {
+            var fields = DbUtils.GetFieldsFiles(DbUtilsTests.PathToDatabase, "catdata")
+                .Select(FieldFactory.CreateField)
+                .ToArray();
+        }
+
+        [Fact]
+        public void ImageDataTableFields()
+        {
+            var fields = DbUtils.GetFieldsFiles(DbUtilsTests.PathToDatabase, "imagedata")
+                .Select(FieldFactory.CreateField)
+                .ToArray();
         }
     }
 }

@@ -4,6 +4,7 @@ using System.IO.Abstractions;
 using System.Linq;
 using System.Reactive.Linq;
 using Microsoft.Extensions.Logging;
+using PicasaDatabaseReader.Core.Fields;
 
 namespace PicasaDatabaseReader.Core
 {
@@ -64,6 +65,12 @@ namespace PicasaDatabaseReader.Core
             return _fileSystem.Directory
                 .GetFiles(_pathToDatabase, $"{tableName}_*.pmp")
                 .ToObservable();
+        }
+
+        public IObservable<IField> GetFields(string tableName)
+        {
+            return GetFieldFilePaths(tableName)
+                .Select(FieldFactory.CreateField);
         }
     }
 }

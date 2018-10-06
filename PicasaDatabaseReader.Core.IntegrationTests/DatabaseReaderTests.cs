@@ -1,9 +1,12 @@
+using System;
 using System.IO.Abstractions;
+using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using PicasaDatabaseReader.Core.Fields;
 using PicasaDatabaseReader.Core.Tests;
 using Xunit;
 using Xunit.Abstractions;
@@ -52,6 +55,57 @@ namespace PicasaDatabaseReader.Core.IntegrationTests
                 .FirstAsync();
 
             fields.Should().HaveCount(fieldCount);
+        }
+
+        [Fact]
+        public async Task GetAlbumData()
+        {
+            Logger.LogInformation("GetAlbumData");
+            var tableName = "albumdata";
+            var result = await GetFields(tableName);
+
+            IField[] core = result.core;
+
+            PicasaDatabaseReader.Fields.IField[] legacy = result.legacy;
+
+            core.Select(field => new
+                {
+                    name = field.Name,
+                    type = field.Type,
+                })
+                .Should()
+                .BeEquivalentTo(legacy.Select(field => new
+                {
+                    name = field.Name,
+                    type = field.Type,
+                }));
+        }
+
+        private async Task<(IField[] core, PicasaDatabaseReader.Fields.IField[] legacy)> GetFields(string tableName)
+        {
+            var core = await GetCoreFields(tableName).ToArray().FirstAsync();
+            var legacy = await LegacyGetFields(tableName).ToArray().FirstAsync();
+
+            return (core: core, legacy: legacy);
+        }
+
+        private IObservable<IField> GetCoreFields(string tableName)
+        {
+            var fileSystem = new FileSystem();
+            var databaseReader = new DatabaseReader(fileSystem, PathToDatabase, GetLogger<DatabaseReader>());
+
+            return databaseReader
+                .GetFields(tableName);
+        }
+
+        private IObservable<PicasaDatabaseReader.Fields.IField> LegacyGetFields(string tableName)
+        {
+            var fileSystem = new FileSystem();
+            var databaseReader = new DatabaseReader(fileSystem, PathToDatabase, GetLogger<DatabaseReader>());
+
+            return databaseReader
+                .GetFieldFilePaths(tableName)
+                .Select(PicasaDatabaseReader.FieldFactory.CreateField);
         }
     }
 }
