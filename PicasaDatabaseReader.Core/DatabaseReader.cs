@@ -3,6 +3,7 @@ using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Reactive.Linq;
+using Microsoft.Extensions.Logging;
 
 namespace PicasaDatabaseReader.Core
 {
@@ -12,11 +13,15 @@ namespace PicasaDatabaseReader.Core
 
         private readonly IFileSystem _fileSystem;
         private readonly string _pathToDatabase;
+        private readonly ILogger<DatabaseReader> _logger;
 
-        public DatabaseReader(IFileSystem fileSystem, string pathToDatabase)
+        public DatabaseReader(IFileSystem fileSystem, string pathToDatabase, ILogger<DatabaseReader> logger = null)
         {
             _fileSystem = fileSystem;
             _pathToDatabase = pathToDatabase;
+            _logger = logger;
+
+            logger?.LogInformation("Constructed");
         }
 
         public IObservable<string> GetTableNames()

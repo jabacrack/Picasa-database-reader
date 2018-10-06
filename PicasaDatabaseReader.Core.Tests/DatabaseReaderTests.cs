@@ -2,22 +2,24 @@ using System;
 using System.IO;
 using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
-using Bogus;
 using FluentAssertions;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace PicasaDatabaseReader.Core.Tests
 {
-    public class DatabaseReaderTests
+    public class DatabaseReaderTests: UnitTestsBase<DatabaseReaderTests>
     {
-        private readonly Faker _faker = new Faker();
+        public DatabaseReaderTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
+        {
+        }
 
         [Fact]
         public void ShouldConstruct()
         {
-            var directoryPath = Path.Combine("c:\\", string.Join("\\", _faker.Lorem.Words()));
+            var directoryPath = Path.Combine("c:\\", string.Join("\\", Faker.Lorem.Words()));
 
-            var args = _faker.Lorem.Words()
+            var args = Faker.Lorem.Words()
                 .Select(s => new { name = s, filename = s + "_0" })
                 .Select(s => new { s.name, s.filename, path = Path.Combine(directoryPath, s.filename) })
                 .ToArray();
