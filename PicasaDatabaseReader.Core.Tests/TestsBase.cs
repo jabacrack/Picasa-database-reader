@@ -72,6 +72,11 @@ namespace PicasaDatabaseReader.Core.Tests
             ServiceProvider = services.BuildServiceProvider();
             Logger = ServiceProvider.GetRequiredService<ILogger<T>>();
         }
+
+        protected ILogger<T> GetLogger<T>()
+        {
+            return ServiceProvider.GetRequiredService<ILogger<T>>();
+        }
     }
 
     public abstract class UnitTestsBase<T> : TestsBase<T>

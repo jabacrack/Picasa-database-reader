@@ -20,13 +20,12 @@ namespace PicasaDatabaseReader.Core.IntegrationTests
         protected internal const string PathToDatabase = "C:\\Users\\Spade\\AppData\\Local\\Google\\Picasa2\\db3";
 
         [Fact]
-        public async Task ShouldReadTables()
+        public async Task ShouldGetTableNames()
         {
-            Logger.LogInformation("ShouldReadTables");
+            Logger.LogInformation("ShouldGetTableNames");
 
-            var logger = ServiceProvider.GetRequiredService<ILogger<DatabaseReader>>();
             var fileSystem = new FileSystem();
-            var databaseReader = new DatabaseReader(fileSystem, PathToDatabase, logger);
+            var databaseReader = new DatabaseReader(fileSystem, PathToDatabase, GetLogger<DatabaseReader>());
 
             var tableNames = await databaseReader
                 .GetTableNames()
@@ -40,13 +39,12 @@ namespace PicasaDatabaseReader.Core.IntegrationTests
         [InlineData("albumdata", 20)]
         [InlineData("catdata", 3)]
         [InlineData("imagedata", 36)]
-        public async Task ShouldGetFieldsFiles(string tableName, int fieldCount)
+        public async Task ShouldGetFieldFiles(string tableName, int fieldCount)
         {
-            Logger.LogInformation("ShouldGetFieldsFiles TableName:{TableName} FieldCount:{FieldCount}", tableName, fieldCount);
+            Logger.LogInformation("ShouldGetFieldFiles TableName:{TableName} FieldCount:{FieldCount}", tableName, fieldCount);
 
-            var logger = ServiceProvider.GetRequiredService<ILogger<DatabaseReader>>();
             var fileSystem = new FileSystem();
-            var databaseReader = new DatabaseReader(fileSystem, PathToDatabase, logger);
+            var databaseReader = new DatabaseReader(fileSystem, PathToDatabase, GetLogger<DatabaseReader>());
 
             var fields = await databaseReader
                 .GetFieldFilePaths(tableName)
