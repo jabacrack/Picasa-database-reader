@@ -8,7 +8,7 @@ namespace PicasaDatabaseReader.Core.Tests.Extensions
 {
     public static class TestExtensions
     {
-        public static DatabaseReader GetDatabaseReader<T>(this TestsBase<T> databaseReaderTests,
+        public static DatabaseReader CreateDatabaseReader<T>(this TestsBase<T> databaseReaderTests,
             IFileSystem fileSystem,
             string directoryPath,
             ISchedulerProvider testScheduleProvider = null)

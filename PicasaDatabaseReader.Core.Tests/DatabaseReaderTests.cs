@@ -48,7 +48,7 @@ namespace PicasaDatabaseReader.Core.Tests
 
             var mockFileSystem = new MockFileSystem(mockFiles);
 
-            var databaseReader = this.GetDatabaseReader(mockFileSystem, directoryPath, TestScheduleProvider);
+            var databaseReader = this.CreateDatabaseReader(mockFileSystem, directoryPath, TestScheduleProvider);
 
             var tableNames = databaseReader
                 .GetTableNames();
@@ -84,7 +84,7 @@ namespace PicasaDatabaseReader.Core.Tests
 
             var mockFileSystem = new MockFileSystem(mockFiles);
 
-            var databaseReader = this.GetDatabaseReader(mockFileSystem, directoryPath, TestScheduleProvider);
+            var databaseReader = this.CreateDatabaseReader(mockFileSystem, directoryPath, TestScheduleProvider);
 
             var tableNames = await databaseReader
                 .GetFieldFilePaths("TestTable")
