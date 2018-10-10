@@ -79,7 +79,8 @@ namespace PicasaDatabaseReader.Core
         public IObservable<IField> GetFields(string tableName)
         {
             return GetFieldFilePaths(tableName)
-                .Select(FieldFactory.CreateField);
+                .Select(FieldFactory.CreateField)
+                .Concat();
         }
     }
 }
