@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Reactive.Concurrency;
@@ -9,7 +10,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PicasaDatabaseReader.Core.Fields;
 using PicasaDatabaseReader.Core.Tests;
-using PicasaDatabaseReader.Core.Tests.Extensions;
 using PicasaDatabaseReader.Core.Tests.Util;
 using Xunit;
 using Xunit.Abstractions;
@@ -72,17 +72,29 @@ namespace PicasaDatabaseReader.Core.IntegrationTests
 
             PicasaDatabaseReader.Fields.IField[] legacy = result.legacy;
 
-            core.Select(field => new
+            var actual = core
+                .Select(field => new
                 {
                     name = field.Name,
                     type = field.Type,
+                    count = field.Count
                 })
-                .Should()
-                .BeEquivalentTo(legacy.Select(field => new
+                .OrderBy(arg => arg.name)
+                .ToArray();
+
+            var expected = legacy
+                .Select(field => new
                 {
                     name = field.Name,
                     type = field.Type,
-                }));
+                    count = field.Count
+                })
+                .OrderBy(arg => arg.name)
+                .ToArray();
+
+            actual
+                .Should()
+                .BeEquivalentTo(expected);
         }
 
         private async Task<(IField[] core, PicasaDatabaseReader.Fields.IField[] legacy)> GetFields(string tableName)

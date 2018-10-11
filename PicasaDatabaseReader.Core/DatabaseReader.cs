@@ -3,8 +3,10 @@ using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using PicasaDatabaseReader.Core.Extensions;
 using PicasaDatabaseReader.Core.Fields;
 using PicasaDatabaseReader.Core.Scheduling;
 
@@ -12,8 +14,6 @@ namespace PicasaDatabaseReader.Core
 {
     public class DatabaseReader
     {
-        public const int TableFileHeader = 0x3fcccccd;
-
         private readonly IFileSystem _fileSystem;
         private readonly string _pathToDatabase;
         private readonly ILogger<DatabaseReader> _logger;
@@ -79,7 +79,58 @@ namespace PicasaDatabaseReader.Core
         public IObservable<IField> GetFields(string tableName)
         {
             return GetFieldFilePaths(tableName)
-                .Select(FieldFactory.CreateField)
+                .Select<string, Task<IField>>(async fieldPath =>
+                {
+                    var fieldStream = FileSystemExtensions.ReadBytesObservable(_fileSystem, fieldPath, 1024, 20);
+
+                    byte[] typeResultBytes = null;
+                    byte[] typeResultConfirmBytes = null;
+                    byte[] countBytes = null;
+
+                    await fieldStream
+                        .MatchNextItems<byte>("constant 0x3fcccccd", 205, 204, 204, 63)
+                        .CaptureNextItems(2, bytes => typeResultBytes = bytes)
+                        .MatchNextItems<byte>("constant 0x1332", 50, 19)
+                        .MatchNextItems<byte>("constant 0x00000002", 2, 0, 0, 0)
+                        .CaptureNextItems(2, bytes => typeResultConfirmBytes = bytes)
+                        .MatchNextItems<byte>("constant 0x1332", 50, 19)
+                        .CaptureNextItems(4, bytes => countBytes = bytes)
+                        .LastOrDefaultAsync();
+
+                    var typeResult = BitConverter.ToUInt16(typeResultBytes, 0);
+                    var typeResultConfirm = BitConverter.ToUInt16(typeResultConfirmBytes, 0);
+                    var count = BitConverter.ToUInt32(countBytes, 0);
+
+                    if (typeResult != typeResultConfirm)
+                    {
+                        throw new Exception();
+                    }
+
+                    var name = _fileSystem.Path.GetFileNameWithoutExtension(fieldPath);
+                    name = name.Substring(name.IndexOf("_", StringComparison.InvariantCultureIgnoreCase) + 1);
+
+                    switch (typeResult)
+                    {
+                        case 0x0:
+                            return new StringField(name, fieldPath, count);
+                        case 0x1:
+                            return new ValueField<uint>(name, fieldPath, count);
+                        case 0x2:
+                            return new DateTimeField(name, fieldPath, count);
+                        case 0x3:
+                            return new ValueField<byte>(name, fieldPath, count);
+                        case 0x4:
+                            return new ValueField<ulong>(name, fieldPath, count);
+                        case 0x5:
+                            return new ValueField<ushort>(name, fieldPath, count);
+                        case 0x6:
+                            return new String2Field(name, fieldPath, count);
+                        case 0x7:
+                            return new ValueField<uint>(name, fieldPath, count);
+                        default:
+                            throw new Exception("Unknown field type.");
+                    }
+                })
                 .Concat();
         }
     }

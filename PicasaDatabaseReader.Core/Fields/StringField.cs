@@ -1,29 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Text;
-
-namespace PicasaDatabaseReader.Core.Fields
+﻿namespace PicasaDatabaseReader.Core.Fields
 {
-    public class StringField : FieldBase, IField
+    public class StringField : FieldBase
     {
-        public StringField(string fieldFilepath, HeaderData header) : base(fieldFilepath, header)
+        public StringField(string name, string path, uint count)
+            : base(typeof(string), name, path, count)
         {
-            Type = typeof (string);
-        }
-
-        public override object ReadValue()
-        {
-            byte b;
-            var result = new List<byte>();
-            try
-            {
-                while ((b = reader.ReadByte()) != 0x0 )
-                {
-                    result.Add(b);
-                }
-            }
-            catch{}
-
-            return Encoding.UTF8.GetString(result.ToArray());
         }
     }
 }

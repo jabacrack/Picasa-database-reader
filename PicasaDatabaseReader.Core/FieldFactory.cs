@@ -13,64 +13,6 @@ namespace PicasaDatabaseReader.Core
 {
     public class FieldFactory
     {
-        public static IObservable<IField> CreateField(string fieldFilepath)
-        {
-            throw new NotImplementedException();
-
-//            Observable.Create(observer =>
-//            {
-//                fieldFilepath
-//            });
-
-//            throw new NotImplementedException();
-
-
-//            return Observable.FromAsync<IField>(async () =>
-//            {
-//                var bytesObservable = ReadBytes(fieldFilepath);
-//                var connectableObservable = bytesObservable.Publish();
-//
-//
-//                throw new NotImplementedException();
-//            });
-
-            //            return Observable.FromAsync<IField>(async () =>
-            //            {
-            //                var observable = await ReadBytes(fieldFilepath).ToArray().FirstAsync();
-            //                var first = observable.First() == 0xcd;
-            //
-            //                
-            //
-            //                using (var reader = new BinaryReader(File.OpenRead(fieldFilepath)))
-            //                {
-            //                    var header = ReadHeader(reader);
-            //
-            //                    switch (header.FieldType)
-            //                    {
-            //                        case 0x0:
-            //                            return new StringField(fieldFilepath, header);
-            //                        case 0x1:
-            //                            return new ValueField<uint>(fieldFilepath, header);
-            //                        case 0x2:
-            //                            return new DateTimeField(fieldFilepath, header);
-            //                        case 0x3:
-            //                            return new ValueField<byte>(fieldFilepath, header);
-            //                        case 0x4:
-            //                            return new ValueField<ulong>(fieldFilepath, header);
-            //                        case 0x5:
-            //                            return new ValueField<ushort>(fieldFilepath, header);
-            //                        case 0x6:
-            //                            return new String2Field(fieldFilepath, header);
-            //                        case 0x7:
-            //                            return new ValueField<uint>(fieldFilepath, header);
-            //                        default:
-            //                            throw new Exception("Unknown field type.");
-            //
-            //                    }
-            //                }
-            //            });
-        }
-
         public static IObservable<byte> ReadBytes(string path, int bufferSize = 0x1000)
         {
             return Observable.Using(

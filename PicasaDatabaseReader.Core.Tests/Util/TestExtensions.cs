@@ -2,9 +2,8 @@ using System.IO.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PicasaDatabaseReader.Core.Scheduling;
-using PicasaDatabaseReader.Core.Tests.Util;
 
-namespace PicasaDatabaseReader.Core.Tests.Extensions
+namespace PicasaDatabaseReader.Core.Tests.Util
 {
     public static class TestExtensions
     {

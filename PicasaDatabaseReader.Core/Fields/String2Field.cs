@@ -2,7 +2,8 @@
 {
     public class String2Field : StringField
     {
-        public String2Field(string fieldFilepath, HeaderData header) : base(fieldFilepath, header)
+        public String2Field(string name, string path, uint count) 
+            : base(name, path, count)
         {
         }
     }
