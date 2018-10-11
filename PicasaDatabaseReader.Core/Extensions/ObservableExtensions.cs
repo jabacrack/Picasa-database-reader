@@ -11,7 +11,7 @@ namespace PicasaDatabaseReader.Core.Extensions
         {
             return Observable.Create<T>(observer =>
             {
-                var counter1 = 0;
+                var counter = 0;
 
                 return source.Subscribe(Observer.Create<T>(
                     onNext: actual =>
@@ -22,7 +22,7 @@ namespace PicasaDatabaseReader.Core.Extensions
                         }
                         else
                         {
-                            var expected = matches[counter1++];
+                            var expected = matches[counter++];
 
                             if (!actual.Equals(expected))
                             {
@@ -30,7 +30,7 @@ namespace PicasaDatabaseReader.Core.Extensions
                                 return;
                             }
 
-                            if (matches.Length == counter1)
+                            if (matches.Length == counter)
                             {
                                 matches = null;
                             }
@@ -40,7 +40,7 @@ namespace PicasaDatabaseReader.Core.Extensions
                     {
                         if (matches != null)
                         {
-                            var expected = matches[counter1];
+                            var expected = matches[counter];
                             observer.OnError(new MatchSourceCompletedException<T>(matchName, expected));
                         }
                         else
