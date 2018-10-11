@@ -14,6 +14,8 @@ namespace PicasaDatabaseReader.Core
 {
     public class DatabaseReader
     {
+        public const int TableFileHeader = 0x3FCCCCCD;
+
         private readonly IFileSystem _fileSystem;
         private readonly string _pathToDatabase;
         private readonly ILogger<DatabaseReader> _logger;

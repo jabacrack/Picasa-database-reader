@@ -61,18 +61,27 @@ namespace PicasaDatabaseReader.Core.IntegrationTests
             fields.Should().HaveCount(fieldCount);
         }
 
-        [Fact]
-        public async Task GetAlbumData()
+        [Theory]
+        [InlineData("albumdata")]
+        [InlineData("catdata")]
+        [InlineData("imagedata")]
+        public async Task ShouldGetFields(string tableName)
         {
-            Logger.LogInformation("GetAlbumData");
-            var tableName = "albumdata";
-            var result = await GetFields(tableName);
+            Logger.LogInformation("ShouldGetFields {TableName}", tableName);
 
-            IField[] core = result.core;
+            var fileSystem = new FileSystem();
+            var databaseReader = this.CreateDatabaseReader(fileSystem, PathToDatabase);
 
-            PicasaDatabaseReader.Fields.IField[] legacy = result.legacy;
+            var coreFields =
+                await databaseReader
+                    .GetFields(tableName).ToArray().FirstAsync();
 
-            var actual = core
+            var legacyFields =
+                await databaseReader
+                    .GetFieldFilePaths(tableName)
+                    .Select(PicasaDatabaseReader.FieldFactory.CreateField).ToArray().FirstAsync();
+
+            var actual = coreFields
                 .Select(field => new
                 {
                     name = field.Name,
@@ -82,7 +91,7 @@ namespace PicasaDatabaseReader.Core.IntegrationTests
                 .OrderBy(arg => arg.name)
                 .ToArray();
 
-            var expected = legacy
+            var expected = legacyFields
                 .Select(field => new
                 {
                     name = field.Name,
@@ -95,33 +104,6 @@ namespace PicasaDatabaseReader.Core.IntegrationTests
             actual
                 .Should()
                 .BeEquivalentTo(expected);
-        }
-
-        private async Task<(IField[] core, PicasaDatabaseReader.Fields.IField[] legacy)> GetFields(string tableName)
-        {
-            var core = await GetCoreFields(tableName).ToArray().FirstAsync();
-            var legacy = await LegacyGetFields(tableName).ToArray().FirstAsync();
-
-            return (core: core, legacy: legacy);
-        }
-
-        private IObservable<IField> GetCoreFields(string tableName)
-        {
-            var fileSystem = new FileSystem();
-            var databaseReader = this.CreateDatabaseReader(fileSystem, PathToDatabase);
-
-            return databaseReader
-                .GetFields(tableName);
-        }
-
-        private IObservable<PicasaDatabaseReader.Fields.IField> LegacyGetFields(string tableName)
-        {
-            var fileSystem = new FileSystem();
-            var databaseReader = this.CreateDatabaseReader(fileSystem, PathToDatabase);
-
-            return databaseReader
-                .GetFieldFilePaths(tableName)
-                .Select(PicasaDatabaseReader.FieldFactory.CreateField);
         }
     }
 }
