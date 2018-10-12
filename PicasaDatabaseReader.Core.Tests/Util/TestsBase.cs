@@ -1,3 +1,4 @@
+using Bogus;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PicasaDatabaseReader.Core.Tests.Logging;
@@ -9,9 +10,12 @@ namespace PicasaDatabaseReader.Core.Tests.Util
     public abstract class TestsBase<T>
     {
         protected readonly ILogger<T> Logger;
+        protected readonly Faker Faker;
 
         public TestsBase(ITestOutputHelper testOutputHelper)
         {
+            Faker = new Faker();
+
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Verbose()
                 .Enrich.WithThreadId()

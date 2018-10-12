@@ -8,7 +8,7 @@ namespace PicasaDatabaseReader.Core.Extensions
 {
     public static class FileSystemExtensions
     {
-        public static IObservable<byte> ReadBytesObservable(IFileSystem fileSystem, string path, int bufferSize, long? maxRead = null, long? startAt = null)
+        public static IObservable<byte> ReadBytesObservable(this IFileSystem fileSystem, string path, int bufferSize, long? maxRead = null, long? startAt = null)
         {
             long? leftCount = null;
             if (maxRead.HasValue)

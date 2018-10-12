@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO.Abstractions;
 
 namespace PicasaDatabaseReader.Core.Fields
 {
@@ -8,5 +9,6 @@ namespace PicasaDatabaseReader.Core.Fields
         string Path { get; }
         Type Type { get; }
         uint Count { get; }
+        IObservable<object> GetValues();
     }
 }

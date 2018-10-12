@@ -83,7 +83,7 @@ namespace PicasaDatabaseReader.Core
             return GetFieldFilePaths(tableName)
                 .Select<string, Task<IField>>(async fieldPath =>
                 {
-                    var fieldStream = FileSystemExtensions.ReadBytesObservable(_fileSystem, fieldPath, 1024, 20);
+                    var fieldStream = _fileSystem.ReadBytesObservable(fieldPath, 1024, 20);
 
                     byte[] typeResultBytes = null;
                     byte[] typeResultConfirmBytes = null;
@@ -114,21 +114,21 @@ namespace PicasaDatabaseReader.Core
                     switch (typeResult)
                     {
                         case 0x0:
-                            return new StringField(name, fieldPath, count);
+                            return new StringField(name, fieldPath, count, _fileSystem);
                         case 0x1:
-                            return new ValueField<uint>(name, fieldPath, count);
+                            return new ValueField<uint>(name, fieldPath, count, _fileSystem);
                         case 0x2:
-                            return new DateTimeField(name, fieldPath, count);
+                            return new DateTimeField(name, fieldPath, count, _fileSystem);
                         case 0x3:
-                            return new ValueField<byte>(name, fieldPath, count);
+                            return new ValueField<byte>(name, fieldPath, count, _fileSystem);
                         case 0x4:
-                            return new ValueField<ulong>(name, fieldPath, count);
+                            return new ValueField<ulong>(name, fieldPath, count, _fileSystem);
                         case 0x5:
-                            return new ValueField<ushort>(name, fieldPath, count);
+                            return new ValueField<ushort>(name, fieldPath, count, _fileSystem);
                         case 0x6:
-                            return new String2Field(name, fieldPath, count);
+                            return new String2Field(name, fieldPath, count, _fileSystem);
                         case 0x7:
-                            return new ValueField<uint>(name, fieldPath, count);
+                            return new ValueField<uint>(name, fieldPath, count, _fileSystem);
                         default:
                             throw new Exception("Unknown field type.");
                     }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
@@ -104,6 +105,77 @@ namespace PicasaDatabaseReader.Core.IntegrationTests
             actual
                 .Should()
                 .BeEquivalentTo(expected);
+        }
+
+        public static IEnumerable<object[]> ShouldGetFieldDataCases() => 
+            DbUtils
+                .GetTablesNames(PathToDatabase)
+                .SelectMany(tableName =>
+                    DbUtils.GetFieldsFiles(PathToDatabase, tableName)
+                        .Select(fieldFile =>
+                        {
+                            var fieldFileName = Path.GetFileNameWithoutExtension(fieldFile);
+                            var fieldName = fieldFileName.Substring(fieldFileName.IndexOf("_") + 1);
+                            return new object[] {tableName, fieldName};
+                        }));
+
+        [Theory]
+        [MemberData(nameof(ShouldGetFieldDataCases))]
+        public async Task ShouldGetFieldData(string tableName, string fieldName)
+        {
+            Logger.LogInformation("ShouldGetFieldData {TableName} {FieldFile}", tableName, fieldName);
+
+            var fieldFileName = $"{tableName}_{fieldName}";
+
+            var fileSystem = new FileSystem();
+            var databaseReader = this.CreateDatabaseReader(fileSystem, PathToDatabase);
+
+            var actual =
+                await databaseReader
+                    .GetFields(tableName)
+                    .Where(field => field.Name == fieldName)
+                    .Select(async field =>
+                    {
+                        var values = await field.GetValues().ToArray().FirstAsync();
+
+                        return new { field, values };
+                    })
+                    .Concat()
+                    .FirstAsync();
+
+            var expected =
+                await databaseReader
+                    .GetFieldFilePaths(tableName)
+                    .Where(s => Path.GetFileNameWithoutExtension(s) == fieldFileName)
+                    .Select(fieldFilepath =>
+                    {
+                        var field = PicasaDatabaseReader.FieldFactory.CreateField(fieldFilepath);
+
+                        var values = new object[field.Count];
+                        for (int i = 0; i < field.Count; i++)
+                        {
+                            values[i] = field.ReadValue();
+                        }
+
+                        return new { field, values };
+                    })
+                    .FirstAsync();
+
+            actual.field.Name.Should().Be(expected.field.Name);
+            actual.field.Type.Should().Be(expected.field.Type);
+            actual.field.Count.Should().Be(expected.field.Count);
+            actual.values.Length.Should().Be(expected.values.Length);
+
+            var body = actual.values
+                .Zip(expected.values, (actualValue, expectedValue) => new { actualValue, expectedValue })
+                .Select((arg, i) => new { arg.actualValue, arg.expectedValue, index = i });
+
+            var selection = Faker.PickRandom(body, Math.Min(50, (int) (actual.field.Count * 0.10)))
+                .ToArray();
+
+            selection.Select(arg => arg.actualValue)
+                .Should()
+                .BeEquivalentTo(selection.Select(arg => arg.expectedValue));
         }
     }
 }

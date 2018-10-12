@@ -30,7 +30,7 @@ namespace PicasaDatabaseReader.Core.Tests.Extensions
             var autoResetEvent = new AutoResetEvent(false);
 
             byte[] result = null;
-            FileSystemExtensions.ReadBytesObservable(mockFileSystem, path, 1024)
+            mockFileSystem.ReadBytesObservable(path, 1024)
                 .ToArray()
                 .Subscribe(
                     values =>
@@ -56,7 +56,7 @@ namespace PicasaDatabaseReader.Core.Tests.Extensions
             var autoResetEvent = new AutoResetEvent(false);
 
             byte[] result = null;
-            FileSystemExtensions.ReadBytesObservable(mockFileSystem, path, 1, 3)
+            mockFileSystem.ReadBytesObservable(path, 1, 3)
                 .ToArray()
                 .Subscribe(
                     values => result = values,
@@ -79,7 +79,7 @@ namespace PicasaDatabaseReader.Core.Tests.Extensions
             var autoResetEvent = new AutoResetEvent(false);
 
             byte[] result = null;
-            FileSystemExtensions.ReadBytesObservable(mockFileSystem, path, 1, 3, 2)
+            mockFileSystem.ReadBytesObservable(path, 1, 3, 2)
                 .ToArray()
                 .Subscribe(
                     values => result = values,
