@@ -1,7 +1,9 @@
 ﻿using System;
 using System.IO.Abstractions;
+using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
+using PicasaDatabaseReader.Core.Extensions;
 
 namespace PicasaDatabaseReader.Core.Fields
 {
@@ -14,41 +16,13 @@ namespace PicasaDatabaseReader.Core.Fields
 
         public override IObservable<object> GetValues()
         {
-            return Observable.Create<object>(observer =>
-            {
-                var counter = 0;
-                var bytes = new byte[8];
-
-                DateTime GetValue()
+            return GetObservable()
+                .Chunk(8)
+                .Select<byte[], object>(bytes =>
                 {
                     var d = BitConverter.ToDouble(bytes, 0);
                     return DateTime.FromOADate(d);
-                }
-
-                var observable = GetObservable();
-                return observable.Subscribe(Observer.Create<byte>(
-                    onNext: b =>
-                    {
-                        bytes[counter % 8] = b;
-
-                        if ((counter + 1) % 8 == 0)
-                        {
-                            observer.OnNext(GetValue());
-                        }
-
-                        counter++;
-                    },
-                    onError: observer.OnError,
-                    onCompleted: () =>
-                    {
-                        if ((counter + 1) % 8 == 0)
-                        {
-                            observer.OnNext(GetValue());
-                        }
-
-                        observer.OnCompleted();
-                    }));
-            });
+                });
         }
     }
 }

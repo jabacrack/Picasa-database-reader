@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 
@@ -77,6 +78,40 @@ namespace PicasaDatabaseReader.Core.Extensions
 
                     return true;
                 });
+        }
+
+        public static IObservable<T[]> Chunk<T>(this IObservable<T> source, int size)
+        {
+            return Observable.Create<T[]>(observer =>
+            {
+                var counter = 0;
+                var items = new T[size];
+
+                return source.Subscribe(Observer.Create<T>(
+                    onNext: b =>
+                    {
+                        items[counter % size] = b;
+
+                        if ((counter + 1) % size == 0)
+                        {
+                            observer.OnNext(items.ToArray());
+                        }
+
+                        counter++;
+                    },
+                    onError: observer.OnError,
+                    onCompleted: () =>
+                    {
+                        if (counter % size != 0)
+                        {
+                            observer.OnError(new Exception());
+                        }
+                        else
+                        {
+                            observer.OnCompleted();
+                        }
+                    }));
+            });
         }
     }
 

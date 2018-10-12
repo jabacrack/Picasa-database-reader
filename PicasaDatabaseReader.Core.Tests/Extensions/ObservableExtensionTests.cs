@@ -20,6 +20,77 @@ namespace PicasaDatabaseReader.Core.Tests.Extensions
         }
 
         [Fact]
+        public void ShouldChunkItemsIntoGroupsOfOne()
+        {
+            var source = new[] { 1, 2, 3 }.ToObservable();
+            var remaining = source.Chunk(1);
+
+            var autoResetEvent = new AutoResetEvent(false);
+
+            int[][] result = null;
+
+            remaining.ToArray()
+                .Subscribe(
+                    values => result = values,
+                    onCompleted: () => autoResetEvent.Set());
+
+            TestScheduleProvider.ThreadPool.AdvanceBy(1);
+
+            autoResetEvent.WaitOne();
+
+            result.Length.Should().Be(3);
+            result[0].Should().BeEquivalentTo(1);
+            result[1].Should().BeEquivalentTo(2);
+            result[2].Should().BeEquivalentTo(3);
+        }
+
+        [Fact]
+        public void ShouldChunkItemsIntoGroupsOfTwo()
+        {
+            var source = new[] { 1, 2, 3, 4 }.ToObservable();
+            var remaining = source.Chunk(2);
+
+            var autoResetEvent = new AutoResetEvent(false);
+
+            int[][] result = null;
+
+            remaining.ToArray()
+                .Subscribe(
+                    values => result = values,
+                    onCompleted: () => autoResetEvent.Set());
+
+            TestScheduleProvider.ThreadPool.AdvanceBy(1);
+
+            autoResetEvent.WaitOne();
+
+            result.Length.Should().Be(2);
+            result[0].Should().BeEquivalentTo(1, 2);
+            result[1].Should().BeEquivalentTo(3, 4);
+        }
+
+        [Fact]
+        public void ShouldThrowErrorIfEndsEarly()
+        {
+            var source = new[] { 1, 2, 3}.ToObservable();
+            var remaining = source.Chunk(2);
+
+            var autoResetEvent = new AutoResetEvent(false);
+
+            var count = 0;
+
+            remaining
+                .Subscribe(
+                    _ => count++,
+                    onError: _ => autoResetEvent.Set());
+
+            TestScheduleProvider.ThreadPool.AdvanceBy(1);
+
+            autoResetEvent.WaitOne();
+
+            count.Should().Be(1);
+        }
+
+        [Fact]
         public void ShouldMatchItems()
         {
             var source = new[] { 1, 2, 3 }.ToObservable();
@@ -59,7 +130,7 @@ namespace PicasaDatabaseReader.Core.Tests.Extensions
             autoResetEvent.WaitOne();
         }
 
-        [Fact(Timeout = 1000)]
+        [Fact]
         public void ShouldThrowErrorSourceEndsEarly()
         {
             var source = new[] { 1, 2, 3 }.ToObservable();
