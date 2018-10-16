@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
@@ -134,6 +135,40 @@ namespace PicasaDatabaseReader.Core
                     }
                 })
                 .Concat();
+        }
+
+        public IObservable<DataTable> GetDataTable(string tableName)
+        {
+            return Observable.FromAsync(async () =>
+            {
+                var fields = await GetFields(tableName)
+                    .ToArray()
+                    .FirstAsync();
+
+                var dataTable = new DataTable(tableName);
+
+                var dataColumns = fields
+                    .Select(field => new DataColumn(field.Name, field.Type) { AllowDBNull = true })
+                    .ToArray();
+
+                dataTable.Columns.AddRange(dataColumns);
+
+                var observables = fields
+                    .Select(field => field.GetValues().Select(o => o ?? DBNull.Value))
+                    .ToArray();
+
+                await Observable.Zip(observables)
+                    .Select((list, i) => new { index = i, list })
+                    .Do((arg) =>
+                    {
+                        var dataRow = dataTable.NewRow();
+                        dataRow.ItemArray = arg.list.ToArray();
+                        dataTable.Rows.Add(dataRow);
+                    })
+                    .LastOrDefaultAsync();
+
+                return dataTable;
+            });
         }
     }
 }
