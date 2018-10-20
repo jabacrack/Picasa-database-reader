@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using PicasaDatabaseReader.Annotations;
+using PicasaDatabaseReader.Core;
 
 namespace PicasaDatabaseReader
 {
@@ -52,12 +53,14 @@ namespace PicasaDatabaseReader
             get { return pathToDatabase; }
             set
             {
-                if (value == pathToDatabase) return;
-                pathToDatabase = value;
-                databaseReader = new DatabaseReader(value);
-                Tables = databaseReader.TableNames;
-                SelectedTable = databaseReader.TableNames.FirstOrDefault();
-                OnPropertyChanged();
+                throw new NotImplementedException();
+
+//                if (value == pathToDatabase) return;
+//                pathToDatabase = value;
+//                databaseReader = new DatabaseReader(value);
+//                Tables = databaseReader.TableNames;
+//                SelectedTable = databaseReader.TableNames.FirstOrDefault();
+//                OnPropertyChanged();
             }
         }
 
@@ -75,9 +78,12 @@ namespace PicasaDatabaseReader
 
         private async void UpdateTable()
         {
-            IsBusy = true;
-            Table = await databaseReader.GetTableAsync(SelectedTable, this);
-            IsBusy = false;
+            throw new NotImplementedException();
+
+
+            //            IsBusy = true;
+            //            Table = await databaseReader.GetTableAsync(SelectedTable, this);
+            //            IsBusy = false;
         }
 
         public string[] Tables
