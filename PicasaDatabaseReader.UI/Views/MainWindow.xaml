@@ -1,0 +1,35 @@
+﻿<Window x:Class="PicasaDatabaseReader.UI.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PicasaDatabaseReader.UI"
+        xmlns:viewModels="clr-namespace:PicasaDatabaseReader.UI.ViewModels"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+
+    <DockPanel>
+        <Grid DockPanel.Dock="Top" HorizontalAlignment="Stretch" Margin="10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="Path to Picasa folder" />
+            <TextBox Grid.Column="1" Margin="5 0 5 0" Name="PathToDatabaseText"
+                     Text="C:\Users\Spade\AppData\Local\Google\Picasa2"/>
+            <Button Grid.Column="2" Content="Browse" Name="BrowseToDatabaseButton"/>
+        </Grid>
+        <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="10 0 10 10">
+            <TextBlock Text="Select Table" Margin="0 0 5 0" />
+            <ComboBox MinWidth="100" Name="TableNamesComboBox">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding}"/>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+        </StackPanel>
+        <DataGrid Name="DataTableDataGrid"></DataGrid>
+    </DockPanel>
+</Window>

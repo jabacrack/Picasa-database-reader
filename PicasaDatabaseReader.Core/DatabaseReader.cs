@@ -9,11 +9,12 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using PicasaDatabaseReader.Core.Extensions;
 using PicasaDatabaseReader.Core.Fields;
+using PicasaDatabaseReader.Core.Interfaces;
 using PicasaDatabaseReader.Core.Scheduling;
 
 namespace PicasaDatabaseReader.Core
 {
-    public class DatabaseReader
+    public class DatabaseReader : IDatabaseReader
     {
         public const int TableFileHeader = 0x3FCCCCCD;
 

@@ -10,18 +10,14 @@ namespace PicasaDatabaseReader
         public MainWindow()
         {
             InitializeComponent();
-            DataContext = new MainWindowPM();
+            DataContext = new MainWindowViewModel();
         }
 
-//        public MainWindowPM PresentationModel {get { return DataContext as MainWindowPM; }}
+//        public MainWindowViewModel PresentationModel {get { return DataContext as MainWindowViewModel; }}
 //
 //        private void SelectDatabaseDirectoryClick(object sender, RoutedEventArgs e)
 //        {
-//            var dialog = new FolderBrowserDialog();
-//            if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-//            {
-//                PresentationModel.PathToDatabase = dialog.SelectedPath;
-//            }
+
 //        }
     }
 }
