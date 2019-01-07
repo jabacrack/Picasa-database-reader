@@ -92,12 +92,12 @@ namespace PicasaDatabaseReader.Core
                     byte[] countBytes = null;
 
                     await fieldStream
-                        .MatchNextItems<byte>("constant 0x3fcccccd", 205, 204, 204, 63)
+                        .MatchNextItems<byte>("constant 0x3fcccccd", 0xCD, 0xCC, 0xCC, 0x3F)
                         .CaptureNextItems(2, bytes => typeResultBytes = bytes)
-                        .MatchNextItems<byte>("constant 0x1332", 50, 19)
-                        .MatchNextItems<byte>("constant 0x00000002", 2, 0, 0, 0)
+                        .MatchNextItems<byte>("constant 0x1332", 0x32, 0x13)
+                        .MatchNextItems<byte>("constant 0x00000002", 0x02, 0x00, 0x00, 0x00)
                         .CaptureNextItems(2, bytes => typeResultConfirmBytes = bytes)
-                        .MatchNextItems<byte>("constant 0x1332", 50, 19)
+                        .MatchNextItems<byte>("constant 0x1332", 0x32, 0x13)
                         .CaptureNextItems(4, bytes => countBytes = bytes)
                         .LastOrDefaultAsync();
 

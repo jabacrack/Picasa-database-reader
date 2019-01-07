@@ -49,7 +49,7 @@ namespace PicasaDatabaseReader.Core.Tests
 
             mockFileSystem.AddFile("c:\\input.pmp", new MockFileData(data));
 
-            var stringField = new StringField("Test", "c:\\input.pmp", 10, mockFileSystem);
+            var stringField = new StringField("Test", "c:\\input.pmp", 3, mockFileSystem);
             var result = await stringField.GetValues().Cast<string>().ToArray().FirstAsync();
 
             result.Should().BeEquivalentTo(wordsArray);
