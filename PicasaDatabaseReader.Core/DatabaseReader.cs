@@ -154,8 +154,13 @@ namespace PicasaDatabaseReader.Core
 
                 dataTable.Columns.AddRange(dataColumns);
 
+                var maxFieldCount = fields.Select(field => field.Count).Max();
+
                 var observables = fields
-                    .Select(field => field.GetValues().Select(o => o ?? DBNull.Value))
+                    .Select(field => field
+                        .GetValues()
+                        .Select(o => o ?? DBNull.Value)
+                        .Concat(Observable.Repeat(DBNull.Value, (int) (maxFieldCount - field.Count))))
                     .ToArray();
 
                 await Observable.Zip(observables)

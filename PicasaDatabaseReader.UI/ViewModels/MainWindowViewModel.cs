@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 using DynamicData;
 using DynamicData.Binding;
 using PicasaDatabaseReader.Core.Interfaces;
@@ -44,6 +45,7 @@ namespace PicasaDatabaseReader.UI.ViewModels
                 .SelectMany(tuple => tuple.Item1 != null && tuple.Item2 != null
                     ? tuple.Item1.GetDataTable(tuple.Item2)
                     : Observable.Return(new DataTable()))
+                .ObserveOn(RxApp.MainThreadScheduler)
                 .Select(table => table.DefaultView)
                 .ToProperty(this, model => model.DataTable);
         }
