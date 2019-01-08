@@ -42,11 +42,12 @@ namespace PicasaDatabaseReader.UI.ViewModels
                 });
 
             _dataTable = this.WhenAnyValue(model => model.DatabaseReader, model => model.SelectedTable)
+                .ObserveOn(RxApp.TaskpoolScheduler)
                 .SelectMany(tuple => tuple.Item1 != null && tuple.Item2 != null
                     ? tuple.Item1.GetDataTable(tuple.Item2)
                     : Observable.Return(new DataTable()))
-                .ObserveOn(RxApp.MainThreadScheduler)
                 .Select(table => table.DefaultView)
+                .ObserveOn(RxApp.MainThreadScheduler)
                 .ToProperty(this, model => model.DataTable);
         }
 
