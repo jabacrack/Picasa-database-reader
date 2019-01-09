@@ -5,10 +5,12 @@ using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Forms;
 using DynamicData.Binding;
 using PicasaDatabaseReader.UI.ViewModels;
 using ReactiveUI;
+using EventsMixin = System.Windows.EventsMixin;
 
 namespace PicasaDatabaseReader.UI.Views
 {
@@ -32,7 +34,7 @@ namespace PicasaDatabaseReader.UI.Views
                     this.Bind(ViewModel,
                             model => model.PathToDatabase,
                             window => window.PathToDatabaseText.Text,
-                            PathToDatabaseText.Events().KeyUp)
+                            EventsMixin.Events(PathToDatabaseText).KeyUp)
                         .DisposeWith(disposable);
 
                     this.OneWayBind(ViewModel,
@@ -102,6 +104,11 @@ namespace PicasaDatabaseReader.UI.Views
         {
             get => (IMainWindowViewModel)GetValue(ViewModelProperty);
             set => SetValue(ViewModelProperty, value);
+        }
+
+        private void DataTableDataGrid_LoadingRow(object sender, DataGridRowEventArgs e)
+        {
+            e.Row.Header = (e.Row.GetIndex()).ToString();
         }
     }
 }

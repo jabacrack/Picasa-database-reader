@@ -30,6 +30,6 @@
                 </ComboBox.ItemTemplate>
             </ComboBox>
         </StackPanel>
-        <DataGrid Name="DataTableDataGrid"></DataGrid>
+        <DataGrid Name="DataTableDataGrid"  LoadingRow="DataTableDataGrid_LoadingRow"></DataGrid>
     </DockPanel>
 </Window>

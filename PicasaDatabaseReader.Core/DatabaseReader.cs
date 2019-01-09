@@ -22,6 +22,7 @@ namespace PicasaDatabaseReader.Core
     public class DatabaseReader : IDatabaseReader
     {
         public const int TableFileHeader = 0x3FCCCCCD;
+        private const string ThumbindexTableName = "thumbindex";
 
         private readonly IFileSystem _fileSystem;
         private readonly string _pathToDatabase;
@@ -50,7 +51,8 @@ namespace PicasaDatabaseReader.Core
                     .ToObservable()
                     .Where(IsTableFile)
                     .Select(_fileSystem.Path.GetFileNameWithoutExtension)
-                    .Select(str => str.Substring(0, str.IndexOf("_0", StringComparison.InvariantCulture)));
+                    .Select(str => str.Substring(0, str.IndexOf("_0", StringComparison.InvariantCulture)))
+                    .Append(ThumbindexTableName);
             }).SubscribeOn(_scheduler.ThreadPool);
         }
 
@@ -145,6 +147,11 @@ namespace PicasaDatabaseReader.Core
 
         public IObservable<DataTable> GetDataTable(string tableName)
         {
+            if (tableName == ThumbindexTableName)
+            {
+                return GetThumbIndexDataTable(tableName);
+            }
+
             return Observable.FromAsync(async () =>
             {
                 var fields = await GetFields(tableName)
@@ -180,6 +187,25 @@ namespace PicasaDatabaseReader.Core
 
                 return dataTable;
             });
+        }
+
+        private IObservable<DataTable> GetThumbIndexDataTable(string tableName)
+        {
+            return GetThumbIndex().ToArray()
+                .Select(datas =>
+                {
+                    var dataTable = new DataTable(tableName);
+
+                    dataTable.Columns.Add(new DataColumn("Index", typeof(uint)));
+                    dataTable.Columns.Add(new DataColumn("Content", typeof(string)));
+
+                    foreach (var data in datas)
+                    {
+                        dataTable.Rows.Add(data.Index, data.Content);
+                    }
+
+                    return dataTable;
+                });
         }
 
         public IObservable<IndexData> GetThumbIndex()
@@ -266,13 +292,13 @@ namespace PicasaDatabaseReader.Core
     public class IndexData
     {
         public uint Position { get; }
-        public string ContentString { get; }
+        public string Content { get; }
         public uint Index { get; }
 
-        public IndexData(uint position, string contentString, uint index)
+        public IndexData(uint position, string content, uint index)
         {
             Position = position;
-            ContentString = contentString;
+            Content = content;
             Index = index;
         }
     }

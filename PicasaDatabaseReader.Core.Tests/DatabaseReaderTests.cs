@@ -179,7 +179,7 @@ namespace PicasaDatabaseReader.Core.Tests
 
             for (int i = 0; i < indexData.Length; i++)
             {
-                indexData[i].ContentString.Should().Be(fileInputs[i].word);
+                indexData[i].Content.Should().Be(fileInputs[i].word);
                 indexData[i].Index.Should().Be(fileInputs[i].index);
             }
         }
