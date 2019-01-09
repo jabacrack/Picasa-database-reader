@@ -1,9 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
+using System.Reactive;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -42,11 +47,10 @@ namespace PicasaDatabaseReader.Core
                 EnsureDatabaseExists();
 
                 return _fileSystem.Directory.GetFiles(_pathToDatabase, "*_0")
+                    .ToObservable()
                     .Where(IsTableFile)
                     .Select(_fileSystem.Path.GetFileNameWithoutExtension)
-                    .Select(str => str.Substring(0, str.IndexOf("_0", StringComparison.InvariantCulture)))
-                    .ToArray()
-                    .ToObservable();
+                    .Select(str => str.Substring(0, str.IndexOf("_0", StringComparison.InvariantCulture)));
             }).SubscribeOn(_scheduler.ThreadPool);
         }
 
@@ -64,6 +68,7 @@ namespace PicasaDatabaseReader.Core
             {
                 try
                 {
+                    // 0x3FCCCCCD
                     return reader.ReadUInt32() == TableFileHeader;
                 }
                 catch (Exception e)
@@ -160,7 +165,7 @@ namespace PicasaDatabaseReader.Core
                     .Select(field => field
                         .GetValues()
                         .Select(o => o ?? DBNull.Value)
-                        .Concat(Observable.Repeat(DBNull.Value, (int) (maxFieldCount - field.Count))))
+                        .Concat(Observable.Repeat(DBNull.Value, (int)(maxFieldCount - field.Count))))
                     .ToArray();
 
                 await Observable.Zip(observables)
@@ -175,6 +180,100 @@ namespace PicasaDatabaseReader.Core
 
                 return dataTable;
             });
+        }
+
+        public IObservable<IndexData> GetThumbIndex()
+        {
+            return Observable.Create<IndexData>(async observer =>
+            {
+                var indexFilePath = _fileSystem.Path.Combine(_pathToDatabase, "thumbindex.db");
+                var headerStream = _fileSystem.ReadBytesObservable(indexFilePath, 1024, 8);
+
+                byte[] countBytes = null;
+
+                await headerStream
+                    .MatchNextItems<byte>("constant 0x66664640", 0x66, 0x66, 0x46, 0x40)
+                    .CaptureNextItems(4, bytes => countBytes = bytes)
+                    .LastOrDefaultAsync();
+
+                var recordCount = BitConverter.ToUInt32(countBytes, 0);
+                uint recordIndex = 0;
+
+                var fileStream = _fileSystem.ReadBytesObservable(indexFilePath, 1024, null, 8);
+
+                var hasCapturedContent = false;
+                var contentStringBytes = new List<byte>();
+
+                const int uselessCountdownMax = 26;
+                var uselessCountdown = uselessCountdownMax;
+
+                var indexBytes = new List<byte>();
+
+                return fileStream.Subscribe(Observer.Create<byte>(
+                    onNext: b =>
+                    {
+                        if (!hasCapturedContent)
+                        {
+                            if (b == 0x00)
+                            {
+                                hasCapturedContent = true;
+                            }
+                            else
+                            {
+                                contentStringBytes.Add(b);
+                            }
+                        }
+                        else if (uselessCountdown != 0)
+                        {
+                            uselessCountdown--;
+                        }
+                        else
+                        {
+                            indexBytes.Add(b);
+
+                            if (indexBytes.Count == 4)
+                            {
+                                var indexValue = BitConverter.ToUInt32(indexBytes.ToArray(), 0);
+                                indexBytes.Clear();
+
+                                var contentString = Encoding.ASCII.GetString(contentStringBytes.ToArray());
+                                contentStringBytes.Clear();
+
+                                hasCapturedContent = false;
+                                uselessCountdown = uselessCountdownMax;
+                                
+                                observer.OnNext(new IndexData(recordIndex++, contentString, indexValue));
+
+                                if (recordIndex == recordCount)
+                                {
+                                    observer.OnCompleted();
+                                }
+                            }
+                        }
+                    }, 
+                    onError: observer.OnError, 
+                    onCompleted: () =>
+                    {
+                        if (recordIndex != recordCount)
+                        {
+                            observer.OnError(new InvalidOperationException("Unexpected source completion"));
+                        }
+                    }));
+            });
+        }
+    }
+
+    public class IndexData
+    {
+        public uint Position { get; }
+        public string ContentString { get; }
+        public uint Index { get; }
+
+        public IndexData(uint position, string contentString, uint index)
+        {
+            Position = position;
+            ContentString = contentString;
+            Index = index;
         }
     }
 }
