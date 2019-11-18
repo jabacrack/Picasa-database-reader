@@ -15,7 +15,7 @@ jobs:
     - name: Setup Nuget
       uses: warrenbuckley/Setup-Nuget@v1
      
-    - name: Choco Install
+    - name: Choco install
       uses: crazy-max/ghaction-chocolatey@v1
       with:
         args: install xunit -y
@@ -27,4 +27,9 @@ jobs:
       run: msbuild PicasaDatabaseReader.sln
 
     - name: XUnit
-      run: xunit.console.exe 
+      run: xunit.console.exe PicasaDatabaseReader.Core.Tests\bin\Debug\netcoreapp2.1\PicasaDatabaseReader.Core.Tests.dll -xml PicasaDatabaseReader.Core.Tests.xml
+      
+    - uses: Update test result
+      with:
+        name: PicasaDatabaseReader.Core.Tests.xml
+        path: PicasaDatabaseReader.Core.Tests.xml
