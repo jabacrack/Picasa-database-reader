@@ -15,6 +15,9 @@ jobs:
     - name: Setup Nuget
       uses: warrenbuckley/Setup-Nuget@v1
 
+    - name: Setup XUnit
+      uses: choco install xunit
+
     - name: Nuget Restore
       run: nuget restore PicasaDatabaseReader.sln
 
