@@ -29,7 +29,8 @@ jobs:
     - name: XUnit
       run: xunit.console.exe PicasaDatabaseReader.Core.Tests\bin\Debug\netcoreapp2.1\PicasaDatabaseReader.Core.Tests.dll -xml PicasaDatabaseReader.Core.Tests.xml
       
-    - uses: Update test result
+    - name: Update test result
+      uses: actions/upload-artifact@master
       with:
         name: PicasaDatabaseReader.Core.Tests.xml
         path: PicasaDatabaseReader.Core.Tests.xml
