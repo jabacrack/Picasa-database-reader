@@ -15,7 +15,7 @@ jobs:
     - name: Setup Nuget
       uses: warrenbuckley/Setup-Nuget@v1
      
-      name: Choco Install
+    - name: Choco Install
       uses: crazy-max/ghaction-chocolatey@v1
       with:
         args: install xunit -y
