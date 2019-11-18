@@ -1,26 +1,18 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
-using System.Reactive.Threading.Tasks;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms.Design.Behavior;
 using FluentAssertions;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
-using PicasaDatabaseReader.Core.Scheduling;
 using PicasaDatabaseReader.Core.Tests.Util;
 using Xunit;
 using Xunit.Abstractions;
-using Xunit.Sdk;
 
 namespace PicasaDatabaseReader.Core.Tests
 {

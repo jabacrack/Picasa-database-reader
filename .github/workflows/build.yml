@@ -1,0 +1,22 @@
+name: Build
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v1
+      
+    - name: Setup MSBuild
+      uses: warrenbuckley/Setup-MSBuild@v1
+
+    - name: Setup Nuget
+      uses: warrenbuckley/Setup-Nuget@v1
+
+    - name: Nuget Restore
+      run: nuget restore PicasaDatabaseReader.sln
+
+    - name: MSBuild
+      run: msbuild PicasaDatabaseReader.sln
