@@ -15,7 +15,8 @@ jobs:
     - name: Setup Nuget
       uses: warrenbuckley/Setup-Nuget@v1
 
+    - name: Nuget Restore
+      run: nuget restore PicasaDatabaseReader.sln
+
     - name: MSBuild
-      run: |-
-        nuget restore PicasaDatabaseReader.sln
-        msbuild PicasaDatabaseReader.sln
+      run: msbuild PicasaDatabaseReader.sln
