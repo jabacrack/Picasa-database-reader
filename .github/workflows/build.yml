@@ -14,12 +14,17 @@ jobs:
 
     - name: Setup Nuget
       uses: warrenbuckley/Setup-Nuget@v1
-
-    - name: Setup XUnit
-      uses: choco install xunit
+     
+      name: Choco Install
+      uses: crazy-max/ghaction-chocolatey@v1
+      with:
+        args: install xunit -y
 
     - name: Nuget Restore
       run: nuget restore PicasaDatabaseReader.sln
 
     - name: MSBuild
       run: msbuild PicasaDatabaseReader.sln
+
+    - name: XUnit
+      run: xunit.console.exe 
