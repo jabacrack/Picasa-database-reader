@@ -1,13 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27703.2047
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29503.13
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PicasaDatabaseReader.Core", "PicasaDatabaseReader.Core\PicasaDatabaseReader.Core.csproj", "{B37618DB-2349-4A52-97DD-738DE6060206}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PicasaDatabaseReader.Core.Tests", "PicasaDatabaseReader.Core.Tests\PicasaDatabaseReader.Core.Tests.csproj", "{A47D948D-B33E-4AD2-BD69-3A70DC85D616}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PicasaDatabaseReader.UI", "PicasaDatabaseReader.UI\PicasaDatabaseReader.UI.csproj", "{BAA7E60B-816F-4108-87B5-3449847F3D9B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,10 +21,6 @@ Global
 		{A47D948D-B33E-4AD2-BD69-3A70DC85D616}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A47D948D-B33E-4AD2-BD69-3A70DC85D616}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A47D948D-B33E-4AD2-BD69-3A70DC85D616}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BAA7E60B-816F-4108-87B5-3449847F3D9B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BAA7E60B-816F-4108-87B5-3449847F3D9B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BAA7E60B-816F-4108-87B5-3449847F3D9B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BAA7E60B-816F-4108-87B5-3449847F3D9B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
