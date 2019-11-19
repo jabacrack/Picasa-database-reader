@@ -27,7 +27,7 @@ jobs:
       run: msbuild PicasaDatabaseReader.sln
 
     - name: XUnit
-      run: xunit.console.exe PicasaDatabaseReader.Core.Tests\bin\Debug\netcoreapp2.1\PicasaDatabaseReader.Core.Tests.dll -xml PicasaDatabaseReader.Core.Tests.xml
+      run: xunit.console.x86.exe PicasaDatabaseReader.Core.Tests\bin\Debug\netcoreapp2.1\PicasaDatabaseReader.Core.Tests.dll -xml PicasaDatabaseReader.Core.Tests.xml
       
     - name: Update test result
       uses: actions/upload-artifact@master
